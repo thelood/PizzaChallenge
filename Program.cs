@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Text;
 
 namespace PizzaChallenge
@@ -22,8 +21,8 @@ namespace PizzaChallenge
             List<Pizza> pizzaMozzarelaMushrooms = new List<Pizza>();
 
             Pizza meatCheapest = new Pizza();
-            Pizza meatOlivaCheapest = new Pizza();
             Pizza cheeseCheapest = new Pizza();
+            Pizza meatOlivaCheapest = new Pizza();
             Pizza mozzarelaMushroomsCheapest = new Pizza();
 
             string meatPercentage = "";
@@ -34,7 +33,7 @@ namespace PizzaChallenge
 
             #region Read from file & parsing pizzas
 
-            using (StreamReader r = new StreamReader("pizzaDB.json"))
+            using (StreamReader r = new StreamReader("pizzaDataBase.json"))
             {
                 string fromFile = r.ReadToEnd();
 
@@ -64,7 +63,7 @@ namespace PizzaChallenge
                                     pizzaMeatOlives.Add(pizza);
                             }
                             
-                            // Group 2 - mozzarela, mozzarela_cheesee, parmesan_cheese, black_cheese, goat_cheese
+                            // Group 2 - at least 2 types of cheese - mozzarela, mozzarela_cheesee, parmesan_cheese, black_cheese, goat_cheese
                             int counter = 0;
                             foreach(string s in ingredients)
                             {
@@ -76,7 +75,7 @@ namespace PizzaChallenge
                                 pizzaCheese.Add(pizza);
 
                             // Group 4 - mushroooms and mozzarela
-                            if (ingredients.Contains("mushrooms") && ingredients.Contains("mozzarella_cheese"))
+                            if (ingredients.Contains("mushrooms") && (ingredients.Contains("mozzarella_cheese") || ingredients.Contains("mozzarella")))
                                 pizzaMozzarelaMushrooms.Add(pizza);
 
                         }
@@ -109,7 +108,7 @@ namespace PizzaChallenge
 
             Group4 g4 = new Group4 { cheapest = GetPizza(mozzarelaMushroomsCheapest), percentage = mozzarelaMushroomsPercentage };
 
-            PersonalInfo person = new PersonalInfo { full_name = "David Djekic", email = "david.djekic@gmail.com", code_link = "blada" };
+            PersonalInfo person = new PersonalInfo { full_name = "David Djekic", email = "david.djekic@gmail.com", code_link = "https://github.com/thelood/RenderedTextPizzaChallenge" };
 
             Answer a = new Answer { group_1 = g1, group_2 = g2, group_3 = g3, group_4 = g4 };
 
@@ -120,36 +119,11 @@ namespace PizzaChallenge
 
             string toFile = JsonConvert.SerializeObject(rootPerson, Formatting.Indented);
 
-            File.WriteAllText("rendered.json",toFile);
+            File.WriteAllText("renderedText.json",toFile);
             #endregion
 
-            #region Send data via HTTP POST request to http://coding-challenge.renderedtext.com/submit
-
-            WebRequest request = WebRequest.Create("http://httpbin.org/post");
-            request.ContentType = "application/json";
-            request.Method = "POST";
-            string postData = toFile;
-            byte[] byteArray = Encoding.ASCII.GetBytes(postData);
-            request.ContentLength = byteArray.Length;
-            
-            Stream dataStream = request.GetRequestStream();
-            dataStream.Write(byteArray, 0, byteArray.Length);
-            dataStream.Close();
-            
-            WebResponse response = request.GetResponse();
-            Console.WriteLine(((HttpWebResponse)response).StatusDescription);
-             
-            dataStream = response.GetResponseStream();
-            
-            StreamReader reader = new StreamReader(dataStream);
-            string responseFromServer = reader.ReadToEnd();
-            
-            Console.WriteLine(responseFromServer);
-            
-            reader.Close();
-            dataStream.Close();
-            response.Close();
-            #endregion
+            string renderedTextUrl = "http://coding-challenge.renderedtext.com/submit";
+            SendFile(toFile, renderedTextUrl);
 
             Console.ReadKey();
         }
@@ -188,6 +162,37 @@ namespace PizzaChallenge
             }
 
             return result;
+        }
+        #endregion
+
+        // Send file
+        #region Send file via HTTP POST request 
+        public static void SendFile(string file, string url)
+        {
+            WebRequest request = WebRequest.Create(url);
+            request.ContentType = "application/json";
+            request.Method = "POST";
+            
+            byte[] byteArray = Encoding.ASCII.GetBytes(file);
+            request.ContentLength = byteArray.Length;
+
+            Stream dataStream = request.GetRequestStream();
+            dataStream.Write(byteArray, 0, byteArray.Length);
+            dataStream.Close();
+
+            WebResponse response = request.GetResponse();
+            Console.WriteLine(((HttpWebResponse)response).StatusDescription);
+
+            dataStream = response.GetResponseStream();
+
+            StreamReader reader = new StreamReader(dataStream);
+            string responseFromServer = reader.ReadToEnd();
+
+            Console.WriteLine(responseFromServer);
+
+            reader.Close();
+            dataStream.Close();
+            response.Close();
         }
         #endregion
     }

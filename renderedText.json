@@ -1,0 +1,27 @@
+{
+  "personal_info": {
+    "full_name": "David Djekic",
+    "email": "david.djekic@gmail.com",
+    "code_link": "https://github.com/thelood/PizzaChallenge"
+  },
+  "answer": [
+    {
+      "group_1": {
+        "percentage": "50",
+        "cheapest": "Hawaii 9 tomato_sauce mozzarella_cheese ham pineapple"
+      },
+      "group_2": {
+        "percentage": "11.11",
+        "cheapest": "QuattroFormaggi 9 tomato_sauce mozzarella parmesan_cheese blue_cheese goat_cheese"
+      },
+      "group_3": {
+        "percentage": "11.11",
+        "cheapest": "Capricciosa 10 tomato_sauce mozzarella_cheese mushrooms ham eggs artichoke cocktail_sausages green_olives"
+      },
+      "group_4": {
+        "percentage": "27.78",
+        "cheapest": "Funghi 7 tomato_sauce mozzarella_cheese mushrooms"
+      }
+    }
+  ]
+}
